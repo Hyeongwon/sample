@@ -76,7 +76,7 @@ pipeline {
 
                           rm -rf manifest-repo
                           git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Hyeongwon/manifests.git manifest-repo
-                          cd manifests/apps/grip-sample/overlays/dev
+                          cd manifest-repo/apps/grip-sample/overlays/dev
 
                           # kustomization.yaml의 newTag 줄을 새 태그로 치환
                           sed -i "s|newTag:.*|newTag: ${IMAGE_TAG}|" kustomization.yaml
