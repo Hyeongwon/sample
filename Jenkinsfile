@@ -11,7 +11,7 @@ pipeline {
                       - "kind-registry"
                 containers:
                   - name: gradle
-                    image: gradle:8.7-jdk17
+                    image: eclipse-temurin:17-jdk
                     command: ['cat']
                     tty: true
                   - name: kaniko
@@ -31,16 +31,19 @@ pipeline {
         IMAGE_NAME   = 'grip-sample'
         // commit SHA의 짧은 버전을 태그로
         IMAGE_TAG    = "${env.GIT_COMMIT?.take(8) ?: 'manual'}"
-        MANIFEST_REPO = 'https://github.com/Hyeongwon/grip-manifests.git'
+        MANIFEST_REPO = 'https://github.com/Hyeongwon/manifests.git'
     }
 
     stages {
         stage('Build') {
             steps {
-                container('gradle') {
-                    sh 'gradle bootJar --no-daemon'
+                    container('gradle') {
+                        sh '''
+                          chmod +x ./gradlew
+                          ./gradlew bootJar --no-daemon
+                        '''
+                    }
                 }
-            }
         }
 
         stage('Docker build & push') {
@@ -72,14 +75,14 @@ pipeline {
                           git config --global user.name "Jenkins CI"
 
                           rm -rf manifest-repo
-                          git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Hyeongwon/grip-manifests.git manifest-repo
-                          cd manifest-repo/apps/grip-sample/overlays/dev
+                          git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/Hyeongwon/manifests.git manifest-repo
+                          cd manifest-repo/apps/sample/overlays/dev
 
                           # kustomization.yaml의 newTag 줄을 새 태그로 치환
                           sed -i "s|newTag:.*|newTag: ${IMAGE_TAG}|" kustomization.yaml
 
                           git add kustomization.yaml
-                          git commit -m "chore: bump grip-sample dev image to ${IMAGE_TAG}"
+                          git commit -m "chore: bump sample dev image to ${IMAGE_TAG}"
                           git push origin main
                         '''
                     }
