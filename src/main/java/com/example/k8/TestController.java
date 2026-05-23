@@ -8,7 +8,7 @@ public class TestController {
 
     @GetMapping("/")
     public String get() {
-        return "test";
+        return "hello-from-gitops-v2";   // ← 변경
     }
 
     @GetMapping("/healthz")
